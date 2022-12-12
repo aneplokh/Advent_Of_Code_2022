@@ -73,7 +73,6 @@ for(my $x=0;$x<=$maxx;$x++){
 
 #now start at A and see where we go from there
 my @dead_end;
-my @successful_path;
 my $minhops=999999;
 traverse("$startcell",());
 
@@ -85,36 +84,20 @@ sub traverse(){
   my $thiscell = shift;
   my @visited = @_;
  
-  #print "trying $thiscell, having already visited @visited\n";
-  push @visited, $thiscell;
+  push @visited, $thiscell; #add this to the list of cells visited
   if($#visited < $minhops){ #only continue if we have a chance at the shortest path
 
     foreach my $nextcell (@{$validpaths{$thiscell}}){
       if($nextcell eq $endcell){
-        print "found a path, took $#visited + 1 hops\n";
-        foreach my $node (@visited){
-          if(!grep $_ eq $node, @successful_path){
-            push @successful_path, $node;
-          }
-        }
+        #print "found a path, took $#visited + 1 hops\n";
         if($minhops > $#visited+1){
           $minhops = $#visited+1;
         }
-      }elsif(!(grep $_ eq $nextcell, @visited)){ #no loops, no dead ends
-        if($shortest_path_to_cell{$nextcell} > $#visited){ #only if shortest seen so far
-          #print "trying $nextcell\n";
+      }elsif($shortest_path_to_cell{$nextcell} > $#visited){ #only if this would be the shortest path
           $shortest_path_to_cell{$nextcell} = $#visited; 
           traverse($nextcell, (@visited)); 
-        }else{
-          #print "not trying $nextcell, shortest path is $shortest_path_to_cell{$nextcell}\n";
-        }
-      }else{
-        #print "print already saw $nextcell in @visited\n";
       }
   
-    }
-    if(!grep $_ eq $thiscell, @successful_path){
-      push(@dead_end, $thiscell);
     }
   }
 }
